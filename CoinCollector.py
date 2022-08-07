@@ -20,7 +20,7 @@ coin = cv2.resize(coin, (30, 30))
 backGroundHeight, backGroundWidth, backGroundCap = backGround.shape
 playerHeight, playerWidth, playerCap = player.shape
 coinHeight, coinWidth, coinCap = coin.shape
-coinPositionYAxis = 0
+coinPositionYAxis = coinHeight
 coinPositionXAxis= random.randint(1,backGroundWidth-coinWidth)
 score=0
 scoreAux=0
@@ -40,30 +40,29 @@ while True:
     processedFrame = cv2.Canny(processedFrame,5,150)
     contornos, cnts = cv2.findContours(processedFrame.copy(),cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
     backGround = cv2.imread('bg2.jpg')
-    coinPositionYAxis+=2
-    if coinPositionYAxis>=backGroundHeight:
-        coinPositionYAxis=0
-        coinPositionXAxis=random.randint(1,backGroundWidth-playerWidth)
-        loses=loses+1
-        backGround[coinPositionYAxis:coinPositionYAxis+coinHeight, coinPositionXAxis:coinPositionXAxis+coinWidth]=coin
-        print(loses)
     if len(contornos)!=0:
-        print(contornos[0][0][0][0]+playerWidth)
         backGround[backGroundHeight-playerHeight:backGroundHeight, contornos[0][0][0][0]:contornos[0][0][0][0]+playerWidth] = player
-        if contornos[0][0][0][0]+playerWidth<=backGroundWidth:
+        if coinPositionYAxis+2>=backGroundHeight:
+            print(coinPositionYAxis)
+            coinPositionYAxis=coinHeight
+            coinPositionXAxis=random.randint(1,backGroundWidth-playerWidth)
+            loses=loses+1
+            backGround[coinPositionYAxis-coinHeight:coinPositionYAxis, coinPositionXAxis:coinPositionXAxis+coinWidth]=coin
+        if contornos[0][0][0][0]+playerWidth<=backGroundWidth and coinPositionYAxis<backGroundHeight-2:
             backGround[backGroundHeight-playerHeight:backGroundHeight, contornos[0][0][0][0]:contornos[0][0][0][0]+playerWidth] = player
-            backGround[coinPositionYAxis:coinPositionYAxis+coinHeight, coinPositionXAxis:coinPositionXAxis+coinWidth]=coin
+            backGround[coinPositionYAxis-coinHeight:coinPositionYAxis, coinPositionXAxis:coinPositionXAxis+coinWidth]=coin
             if coinPositionYAxis>=playerHeight and coinPositionXAxis>=contornos[0][0][0][0] and coinPositionXAxis<=contornos[0][0][0][0]+playerWidth:
                 score +=1
                 scoreAux = score
                 if scoreAux > 0:
-                    coinPositionYAxis = 0
+                    coinPositionYAxis = coinHeight
                     coinPositionXAxis = random.randint(1, backGroundWidth-playerWidth)
                     scoreAux=0
             cv2.putText(backGround, 'SCORE: '+str(score),(10,10), cv2.FONT_HERSHEY_DUPLEX,1,(0,0,0),3)
             cv2.putText(backGround, 'LOSES: '+str(loses), (10,30), cv2.FONT_HERSHEY_DUPLEX,1,(0,0,0),3)
         else:
             backGround = cv2.imread('bg2.jpg')
+        coinPositionYAxis+=2
     else:
         backGround = cv2.imread('bg2.jpg')
         cv2.putText(backGround, 'COLOCA EL VASO AL FRENTE', (100, 200),cv2.FONT_HERSHEY_DUPLEX,1,(0,0,0),3)
