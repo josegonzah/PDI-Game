@@ -40,11 +40,19 @@ while True:
     processedFrame = cv2.Canny(processedFrame,5,150)
     contornos, cnts = cv2.findContours(processedFrame.copy(),cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
     backGround = cv2.imread('bg2.jpg')
-    backGround[backGroundHeight-playerHeight:backGroundHeight, contornos[0][0][0][0]:contornos[0][0][0][0]+playerWidth] = player
+    coinPositionYAxis+=2
+    if coinPositionYAxis>=backGroundHeight:
+        coinPositionYAxis=0
+        coinPositionXAxis=random.randint(1,backGroundWidth-playerWidth)
+        loses=loses+1
+        backGround[coinPositionYAxis:coinPositionYAxis+coinHeight, coinPositionXAxis:coinPositionXAxis+coinWidth]=coin
+        print(loses)
     if len(contornos)!=0:
+        print(contornos[0][0][0][0]+playerWidth)
+        backGround[backGroundHeight-playerHeight:backGroundHeight, contornos[0][0][0][0]:contornos[0][0][0][0]+playerWidth] = player
         if contornos[0][0][0][0]+playerWidth<=backGroundWidth:
             backGround[backGroundHeight-playerHeight:backGroundHeight, contornos[0][0][0][0]:contornos[0][0][0][0]+playerWidth] = player
-            backGround[coinPositionYAxis:coinPositionYAxis+coinHeight, coinPositionXAxis:coinPositionXAxis+coinWidth,:]=coin
+            backGround[coinPositionYAxis:coinPositionYAxis+coinHeight, coinPositionXAxis:coinPositionXAxis+coinWidth]=coin
             if coinPositionYAxis>=playerHeight and coinPositionXAxis>=contornos[0][0][0][0] and coinPositionXAxis<=contornos[0][0][0][0]+playerWidth:
                 score +=1
                 scoreAux = score
@@ -67,12 +75,7 @@ while True:
     key = cv2.waitKey(1)
     if key==ord('q') or key==ord('Q'):
         break
-    coinPositionYAxis+=2
-    if coinPositionYAxis>=backGroundHeight-1:
-        coinPositionYAxis=0
-        coinPositionXAxis=random.randint(1,backGroundWidth-playerWidth)
-        loses=loses+1
-        print(loses)
+    
 
 video.release()
 cv2.destroyAllWindows()
